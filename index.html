@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gig-Dex — My Concert Collection</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <h1 class="logo">🎸 Gig-Dex</h1>
+      <p class="tagline">Gotta see 'em all</p>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="collection">My Collection</button>
+    <button class="tab" data-tab="wishlist">⭐ Wishlist &amp; Upcoming</button>
+    <button class="tab" data-tab="trophies">🏆 Trophies</button>
+    <button class="tab" data-tab="releases">🤘 New Releases</button>
+    <button class="tab" data-tab="news">📰 Hellfest News</button>
+  </nav>
+
+  <main class="container">
+    <!-- ===== Collection tab ===== -->
+    <div class="tab-panel" id="tab-collection">
+    <!-- Controls -->
+    <section class="controls">
+      <div class="search-wrap">
+        <input
+          type="search"
+          id="searchInput"
+          class="search-input"
+          placeholder="Search artist or venue..."
+          autocomplete="off"
+        />
+      </div>
+      <div class="control-actions">
+        <select id="sortSelect" class="sort-select" aria-label="Sort gigs">
+          <option value="recent">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="artist">Artist (A–Z)</option>
+          <option value="rating">Top rated</option>
+          <option value="seen">Most seen</option>
+        </select>
+        <button id="exportBtn" class="btn btn-ghost" title="Export collection as JSON">Export</button>
+        <button id="importBtn" class="btn btn-ghost" title="Import collection from JSON">Import</button>
+        <input type="file" id="importFile" accept="application/json,.json" hidden />
+        <button id="addBtn" class="btn btn-primary">+ Add Gig</button>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats" id="stats"></section>
+
+    <!-- Tiles -->
+    <section class="grid" id="grid"></section>
+
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState" hidden>
+      <p class="empty-emoji">🎤</p>
+      <h2>No gigs yet</h2>
+      <p>Add your first concert to start your collection.</p>
+      <button class="btn btn-primary" id="emptyAddBtn">+ Add your first gig</button>
+    </div>
+    </div><!-- /tab-collection -->
+
+    <!-- ===== Wishlist & Upcoming tab ===== -->
+    <div class="tab-panel" id="tab-wishlist" hidden>
+      <section class="controls">
+        <div class="search-wrap">
+          <input
+            type="search"
+            id="wishSearch"
+            class="search-input"
+            placeholder="Search artist or venue..."
+            autocomplete="off"
+          />
+        </div>
+        <div class="control-actions">
+          <select id="wishSort" class="sort-select" aria-label="Sort wishlist">
+            <option value="soonest">Soonest first</option>
+            <option value="latest">Latest first</option>
+            <option value="artist">Artist (A–Z)</option>
+          </select>
+          <button id="wishAddBtn" class="btn btn-primary">+ Add Wish</button>
+        </div>
+      </section>
+
+      <section class="grid" id="wishGrid"></section>
+
+      <div class="empty-state" id="wishEmptyState" hidden>
+        <p class="empty-emoji">⭐</p>
+        <h2>No wishes yet</h2>
+        <p>Add concerts you want to see or have tickets for.</p>
+        <button class="btn btn-primary" id="wishEmptyAddBtn">+ Add your first wish</button>
+      </div>
+    </div><!-- /tab-wishlist -->
+
+    <!-- ===== Trophies tab ===== -->
+    <div class="tab-panel" id="tab-trophies" hidden>
+      <div class="trophy-header">
+        <div class="trophy-progress-info">
+          <h2 class="section-title">Trophy Cabinet</h2>
+          <p class="trophy-sub" id="trophySub"></p>
+        </div>
+        <div class="trophy-progress-ring">
+          <div class="trophy-score" id="trophyScore">0%</div>
+        </div>
+      </div>
+      <div class="trophy-bar"><div class="trophy-bar-fill" id="trophyBarFill"></div></div>
+      <section class="trophy-grid" id="trophyGrid"></section>
+    </div><!-- /tab-trophies -->
+
+    <!-- ===== New Releases tab ===== -->
+    <div class="tab-panel" id="tab-releases" hidden>
+      <section class="controls">
+        <div class="search-wrap">
+          <input
+            type="search"
+            id="releaseSearch"
+            class="search-input"
+            placeholder="Filter band, album or genre..."
+            autocomplete="off"
+          />
+        </div>
+        <div class="control-actions">
+          <select id="releaseGenre" class="sort-select" aria-label="Filter genre">
+            <option value="metal">All metal</option>
+            <option value="black metal">Black metal</option>
+            <option value="death metal">Death metal</option>
+            <option value="thrash metal">Thrash metal</option>
+            <option value="heavy metal">Heavy metal</option>
+            <option value="doom metal">Doom metal</option>
+            <option value="power metal">Power metal</option>
+            <option value="progressive metal">Progressive metal</option>
+            <option value="symphonic metal">Symphonic metal</option>
+            <option value="folk metal">Folk metal</option>
+            <option value="metalcore">Metalcore</option>
+            <option value="deathcore">Deathcore</option>
+            <option value="sludge metal">Sludge metal</option>
+            <option value="gothic metal">Gothic metal</option>
+          </select>
+          <select id="releaseType" class="sort-select" aria-label="Filter release type">
+            <option value="all">All types</option>
+            <option value="full-length">Full-length albums</option>
+            <option value="ep">EPs</option>
+          </select>
+          <button id="releaseRefresh" class="btn btn-ghost">Refresh</button>
+        </div>
+      </section>
+
+      <h2 class="section-title" id="releaseHeading">Latest metal releases of <span id="releaseYear"></span></h2>
+
+      <div class="release-status" id="releaseStatus"></div>
+      <section class="grid" id="releaseGrid"></section>
+    </div><!-- /tab-releases -->
+
+    <!-- ===== Hellfest News tab ===== -->
+    <div class="tab-panel" id="tab-news" hidden>
+      <section class="controls">
+        <div class="search-wrap">
+          <input
+            type="search"
+            id="newsSearch"
+            class="search-input"
+            placeholder="Filtrer les actualités..."
+            autocomplete="off"
+          />
+        </div>
+        <div class="control-actions">
+          <select id="newsSource" class="sort-select" aria-label="Source">
+            <option value="all">Toutes les sources</option>
+            <option value="hellfest">Site Hellfest</option>
+            <option value="google">Google News</option>
+          </select>
+          <button id="newsRefresh" class="btn btn-ghost">Actualiser</button>
+        </div>
+      </section>
+
+      <h2 class="section-title">Actualités Hellfest</h2>
+      <div class="release-status" id="newsStatus"></div>
+      <section class="news-list" id="newsList"></section>
+    </div><!-- /tab-news -->
+  </main>
+
+  <!-- Modal: Add / Edit gig -->
+  <div class="modal-overlay" id="modalOverlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <h2 id="modalTitle">Add Gig</h2>
+        <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+      </div>
+      <form id="gigForm" class="gig-form">
+        <input type="hidden" id="gigId" />
+
+        <label class="field">
+          <span class="field-label">Artist / Band *</span>
+          <input type="text" id="artistInput" required placeholder="e.g. Radiohead" />
+        </label>
+
+        <div class="field-row">
+          <label class="field">
+            <span class="field-label">Date</span>
+            <input type="date" id="dateInput" />
+          </label>
+          <label class="field">
+            <span class="field-label">Venue</span>
+            <input type="text" id="venueInput" placeholder="e.g. Madison Square Garden" />
+          </label>
+        </div>
+
+        <label class="field">
+          <span class="field-label">City</span>
+          <input type="text" id="cityInput" placeholder="e.g. New York" />
+        </label>
+
+        <label class="field">
+          <span class="field-label">Image URL</span>
+          <input type="url" id="imageInput" placeholder="https://... (optional)" />
+        </label>
+
+        <div class="field">
+          <span class="field-label">Rating</span>
+          <div class="rating-input" id="ratingInput">
+            <button type="button" class="star" data-value="1">★</button>
+            <button type="button" class="star" data-value="2">★</button>
+            <button type="button" class="star" data-value="3">★</button>
+            <button type="button" class="star" data-value="4">★</button>
+            <button type="button" class="star" data-value="5">★</button>
+          </div>
+        </div>
+
+        <label class="field">
+          <span class="field-label">Notes</span>
+          <textarea id="notesInput" rows="2" placeholder="Best moment, setlist, who you went with..."></textarea>
+        </label>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="deleteBtn" hidden>Delete</button>
+          <button type="button" class="btn btn-ghost" id="moveBtn" hidden>Mark as seen →</button>
+          <div class="spacer"></div>
+          <button type="button" class="btn btn-ghost" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
